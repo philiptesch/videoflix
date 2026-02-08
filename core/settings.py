@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django_rq",
      "corsheaders",
     'auth_app', 
+    'rest_framework_simplejwt',
     'video_app'
     ]
 
@@ -153,3 +154,22 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+
+from datetime import timedelta
+
+
+SIMPLE_JWT = {
+     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    }
+
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+
+}
