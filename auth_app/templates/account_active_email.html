@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Account Activation</title>
+</head>
+<body>
+    <h2>Hallo {{ user.username }}!</h2>
+    <p>Danke, dass du dich registriert hast. Bitte klicke auf den Link unten, um dein Konto zu aktivieren:</p>
+    
+    <p>
+        <a href="http://{{ domain }}/activate/{{ uid }}/{{ token }}/">
+            Konto aktivieren
+        </a>
+    </p>
+
+    <p>Falls der Link nicht funktioniert, kopiere ihn bitte in deinen Browser:</p>
+    <p>http://{{ domain }}/activate/{{ uid }}/{{ token }}/</p>
+
+    <br>
+    <p>Vielen Dank,<br>Dein Team</p>
+</body>
+</html>
