@@ -1,12 +1,7 @@
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+
 from rest_framework.response import Response
-from rest_framework import generics, status
+from rest_framework import  status
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils.http import base36_to_int, int_to_base36
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
