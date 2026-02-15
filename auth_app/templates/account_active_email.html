@@ -5,17 +5,17 @@
     <title>Account Activation</title>
 </head>
 <body>
-    <h2>Hallo {{ uuser.email }}!</h2>
+    <h2>Hallo {{ user }}!</h2>
     <p>Danke, dass du dich registriert hast. Bitte klicke auf den Link unten, um dein Konto zu aktivieren:</p>
     
     <p>
-        <a href="http://{{ domain }}/activate/{{ uid }}/{{ token }}/">
+       <a href="http://{{ domain }}api/activate/{{ uid }}/{{ token }}/">
             Konto aktivieren
         </a>
     </p>
 
     <p>Falls der Link nicht funktioniert, kopiere ihn bitte in deinen Browser:</p>
-    <p>http://{{ domain }}/activate/{{ uid }}/{{ token }}/</p>
+    <p>http://{{ domain }}api/activate/{{ uid }}/{{ token }}/</p>
 
     <br>
     <p>Vielen Dank,<br>Dein Team</p>
