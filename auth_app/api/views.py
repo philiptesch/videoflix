@@ -26,12 +26,16 @@ class RegistrationView(APIView):
         user.is_active = False
         user.save()
         mail = serializer.validated_data.get('email')
+        username = serializer.validated_data.get('username')
 
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = account_activation_token.make_token(user)
 
+        print('nmame')
+        print(user.email)
+
         try:
-            get_template('auth_app/account_active_email.html')
+            get_template('account_active_email.html')
             print("Template gefunden ✅")
         except Exception as e:
             print("Template nicht gefunden ❌", e)
@@ -45,7 +49,8 @@ class RegistrationView(APIView):
         to=[mail])
         email.attach_alternative(message, "text/html")
         email.send(fail_silently=False)
-
+        print('nmame')
+        print(username)
 
         response = Response({"user":{'id': user.id, 'email':mail  },'token': 'activation_token' }, status=status.HTTP_200_OK)
 
