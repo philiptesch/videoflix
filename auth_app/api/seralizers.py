@@ -37,3 +37,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'password', 'confirmed_password', 'email', 'username' ]
+
+
+class LoginSeralizer(serializers.ModelSerializer):
+
+    
+    
+
+       class Meta:
+        model = User
+        fields = ['id', 'password', 'confirmed_password', 'email', 'username' ]

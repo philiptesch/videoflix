@@ -13,6 +13,11 @@ from django.core.mail import EmailMultiAlternatives
 from .seralizers import RegistrationSerializer
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 class RegistrationView(APIView):
 
     serializer_class = RegistrationSerializer
@@ -71,3 +76,7 @@ class AccountActivatedView(APIView):
         response = Response({"message": "Account successfully activated."}, status=status.HTTP_200_OK)
 
         return response
+
+
+class LoginView(TokenObtainPairView):
+        pass
