@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .tokens import account_activation_token
 from django.core.mail import EmailMultiAlternatives
-from .seralizers import RegistrationSerializer
+from .seralizers import RegistrationSerializer, LoginSeralizer
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework_simplejwt.views import (
@@ -79,4 +79,22 @@ class AccountActivatedView(APIView):
 
 
 class LoginView(TokenObtainPairView):
-        pass
+        serializer_class = LoginSeralizer
+
+
+        def post(self, request, *args, **kwargs):
+            serializer = self.get_serializer(data=request.data)
+
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+            
+            refresh = serializer.validated_data['refresh']
+            access = serializer.validated_data['access']
+            response = Response({"detail": "Login successfully!","user": {'id': serializer.user.id,'username': serializer.user.username}},status=status.HTTP_200_OK)
+
+            response.set_cookie(
+                key="access_token", value=access, httponly=True, secure=True, samesite="Lax")
+        
+            response.set_cookie(
+                key="refresh_token", value=refresh, httponly=True, secure=True, samesite="Lax")
+            return response

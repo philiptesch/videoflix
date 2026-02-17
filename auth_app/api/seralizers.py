@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User, AbstractUser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from django.contrib.auth import get_user_model
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -39,11 +39,38 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = ['id', 'password', 'confirmed_password', 'email', 'username' ]
 
 
-class LoginSeralizer(serializers.ModelSerializer):
 
-    
+
+User = get_user_model()
+class LoginSeralizer(TokenObtainPairSerializer):
+    id = serializers.IntegerField(read_only=True)
+    email = serializers.EmailField()                     
+    confirmed_password = serializers.CharField(write_only=True)    
+    password = serializers.CharField(write_only=True)
     
 
-       class Meta:
-        model = User
-        fields = ['id', 'password', 'confirmed_password', 'email', 'username' ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields.pop('username')
+
+
+    def validate(self, attrs):
+       email = attrs.get("email")
+       password = attrs.get("password")
+       confirmed_password = attrs.get("confirmed_password")
+       try:
+            user = User.objects.get(email=email)
+       except User.DoesNotExist:
+            raise serializers.ValidationError("email not exist") 
+       
+       if not user.check_password(password):
+            raise serializers.ValidationError("wrong password")
+       
+       if password != confirmed_password:
+        raise serializers.ValidationError("Passwords do not match")
+
+       attrs['username'] = email       
+       data = super().validate(attrs)
+
+       return data
