@@ -17,6 +17,9 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
 
 class RegistrationView(APIView):
 
@@ -98,3 +101,24 @@ class LoginView(TokenObtainPairView):
             response.set_cookie(
                 key="refresh_token", value=refresh, httponly=True, secure=True, samesite="Lax")
             return response
+        
+class LogoutView(APIView):
+     
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        
+        access_token = request.COOKIES.get('access_token') 
+        refresh_token = request.COOKIES.get('refresh_token')
+
+
+        if refresh_token is None: 
+            return Response({"detail": "refresh_token not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        response = Response({"detail": "Logout successful! All tokens will be deleted. Refresh token is now invalid."}, status=status.HTTP_200_OK)
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+
+        return response

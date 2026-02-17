@@ -45,7 +45,6 @@ User = get_user_model()
 class LoginSeralizer(TokenObtainPairSerializer):
     id = serializers.IntegerField(read_only=True)
     email = serializers.EmailField()                     
-    confirmed_password = serializers.CharField(write_only=True)    
     password = serializers.CharField(write_only=True)
     
 
@@ -58,7 +57,6 @@ class LoginSeralizer(TokenObtainPairSerializer):
     def validate(self, attrs):
        email = attrs.get("email")
        password = attrs.get("password")
-       confirmed_password = attrs.get("confirmed_password")
        try:
             user = User.objects.get(email=email)
        except User.DoesNotExist:
@@ -66,9 +64,7 @@ class LoginSeralizer(TokenObtainPairSerializer):
        
        if not user.check_password(password):
             raise serializers.ValidationError("wrong password")
-       
-       if password != confirmed_password:
-        raise serializers.ValidationError("Passwords do not match")
+          
 
        attrs['username'] = email       
        data = super().validate(attrs)
