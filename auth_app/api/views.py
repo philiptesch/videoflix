@@ -19,7 +19,7 @@ from rest_framework_simplejwt.views import (
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, AllowAny
-
+from .helper import  check_token_is_valid
 
 class RegistrationView(APIView):
 
@@ -113,12 +113,37 @@ class LogoutView(APIView):
 
         if refresh_token is None: 
             return Response({"detail": "refresh_token not found"}, status=status.HTTP_400_BAD_REQUEST)
-
+        
+    
 
         response = Response({"detail": "Logout successful! All tokens will be deleted. Refresh token is now invalid."}, status=status.HTTP_200_OK)
         response.delete_cookie('access_token')
         response.delete_cookie('refresh_token')
         token = RefreshToken(refresh_token)
         token.blacklist()
+
+        return response
+
+class RefreshTokenView(TokenRefreshView):
+     
+     
+     def post(self, request, *args, **kwargs):  
+          
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if refresh_token is None:
+            return Response({"detail": "Refresh-Token is Missing"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        token = check_token_is_valid(refresh_token)
+
+        if token is None:
+            return Response({"detail": "Refresh token invalid"},status=status.HTTP_401_UNAUTHORIZED)
+
+        token = RefreshToken(refresh_token)
+        access_token = str(token.access_token)
+        response = Response({"detail": "Token refreshed", "access_token": access_token }, status=status.HTTP_200_OK)
+
+        response.set_cookie(
+                key="access_token", value=access_token, httponly=True, secure=True, samesite="Lax")
 
         return response
