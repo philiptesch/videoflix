@@ -70,3 +70,19 @@ class LoginSeralizer(TokenObtainPairSerializer):
        data = super().validate(attrs)
 
        return data
+    
+
+class PasswordResetSeralizer(serializers.Serializer):
+        
+        email = serializers.EmailField()
+
+
+        def validate(self, attrs):
+            email = attrs.get("email")
+        
+            try:
+              User.objects.get(email=email)
+            except User.DoesNotExist:
+                raise serializers.ValidationError("email not exist") 
+            
+            return attrs

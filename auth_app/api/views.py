@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .tokens import account_activation_token
 from django.core.mail import EmailMultiAlternatives
-from .seralizers import RegistrationSerializer, LoginSeralizer
+from .seralizers import RegistrationSerializer, LoginSeralizer, PasswordResetSeralizer
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework_simplejwt.views import (
@@ -20,6 +20,8 @@ from rest_framework_simplejwt.views import (
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .helper import  check_token_is_valid
+from django.contrib.auth.models import User
+
 
 class RegistrationView(APIView):
 
@@ -147,3 +149,35 @@ class RefreshTokenView(TokenRefreshView):
                 key="access_token", value=access_token, httponly=True, secure=True, samesite="Lax")
 
         return response
+     
+
+class PasswordResetView(APIView):
+
+    serializer_class = PasswordResetSeralizer
+
+    def post(self, request):
+
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+            if User.objects.filter(email=email).exists():
+                user= User.objects.get(email=email)
+                host = request.get_host()
+
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = account_activation_token.make_token(user)
+                user_display = user.username if user.username else user.email
+
+                message = render_to_string('reset_password.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token})
+
+                email =EmailMultiAlternatives(
+                subject='My email',
+                body=message,
+                from_email='noreply@example.com',
+                to=[email])
+                email.attach_alternative(message, "text/html")
+                email.send(fail_silently=False)
+
+
+                return Response({"detail": "An email has been sent to reset your password."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
