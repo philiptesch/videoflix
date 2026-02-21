@@ -86,3 +86,20 @@ class PasswordResetSeralizer(serializers.Serializer):
                 raise serializers.ValidationError("email not exist") 
             
             return attrs
+        
+
+
+class ConfirmResetPasswordSeralizer(serializers.Serializer):
+
+        confirm_password = serializers.CharField(write_only=True)
+        new_password = serializers.CharField(write_only=True)
+
+
+        def validate(self, attrs):
+            new_password = attrs.get("new_password")
+            confirm_password = attrs.get("confirm_password")
+
+            if confirm_password != new_password:
+                raise serializers.ValidationError({'password': 'Passwords do not match'})
+            return attrs
+        

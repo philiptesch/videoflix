@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .tokens import account_activation_token
 from django.core.mail import EmailMultiAlternatives
-from .seralizers import RegistrationSerializer, LoginSeralizer, PasswordResetSeralizer
+from .seralizers import RegistrationSerializer, LoginSeralizer, PasswordResetSeralizer, ConfirmResetPasswordSeralizer
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework_simplejwt.views import (
@@ -180,4 +180,33 @@ class PasswordResetView(APIView):
 
 
                 return Response({"detail": "An email has been sent to reset your password."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class ConfirmNewPasswordView(APIView):
+    
+    serializer_class = ConfirmResetPasswordSeralizer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            uid_from_url = self.kwargs['uidb64']
+            token = self.kwargs['token']
+            new_password = serializer.validated_data.get('new_password')
+
+            try:
+                uid =  force_str(urlsafe_base64_decode(uid_from_url))
+                user = User.objects.get(pk=uid)
+            except (TypeError, ValueError, OverflowError):
+                return Response({"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST)
+            except ObjectDoesNotExist:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            if user is not None and account_activation_token.check_token(user, token):
+                user.set_password(new_password)
+                user.save()
+                 
+            response = Response({"detail": "Your Password has been successfully reset."}, status=status.HTTP_200_OK)
+            return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
