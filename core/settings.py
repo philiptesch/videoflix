@@ -49,7 +49,7 @@ INSTALLED_APPS = [
      "corsheaders",
     'auth_app', 
     'rest_framework_simplejwt',
-    'video_app'
+    'video_app.apps.VideoAppConfig',
     ]
 
 MIDDLEWARE = [
@@ -179,7 +179,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 from datetime import timedelta
 
