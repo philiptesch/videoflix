@@ -3,13 +3,17 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .models import  Video
 import os
-
+from .tasks import convert_Video
 @receiver(post_save, sender=Video)
 def video_post_save(sender, instance, created, **kwargs):
 
     print('Video was saved')
     if  created:
-        print('New object created')
+        print('New object created', instance.id)
+    
+
+        convert_Video(instance.video_file.path, instance.id)
+
         
         
         
