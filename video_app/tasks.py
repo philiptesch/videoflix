@@ -2,12 +2,22 @@ import subprocess
 import os
 from django.core.files import File
 
-def convert_Video(video):
+
+def save_new_video_path(instance, id):
+    old_path = instance.video_file.path 
+    new_name = f"new_video_name_{id}.mp4"
+    old = os.path.dirname(old_path)
+    new_path = os.path.join(old, new_name)
+    os.rename(old_path, new_path)
+    convert_Video(instance, new_path, new_name)
+
+
+def convert_Video(instance, new_path, new_name):
     target_dir = os.path.join('media', 'video', 'hls')
     os.makedirs(target_dir, exist_ok=True)
-    target = os.path.join(target_dir, video.replace('.mp4', '_480.mp4'))
+    target = os.path.join(target_dir, new_name.replace('.mp4', '_480.mp4'))
     ffmpeg_command = [
-        '-i', video,
+        '-i', new_path,
         '-s', 'hd480',
         '-c:v', 'libx264',
         '-crf', '23',
@@ -17,10 +27,11 @@ def convert_Video(video):
     ]
 
     if ffmpeg(*ffmpeg_command):
-        with open(target, 'rb') as resized_video:
-            video.file.save(video, File(resized_video))
-        os.remove(target)
-        return video
+        with open(new_path, 'rb') as f : 
+            instance.video_file.save(os.path.basename(new_path), File(f), 
+            save=True )
+        return target
+    
     else:
         return None
     
@@ -28,8 +39,8 @@ def convert_Video(video):
 
 
 def ffmpeg(*cmd):
-  try:
-    subprocess.check_output(['ffmpeg'] + list(cmd))
-  except subprocess.CalledProcessError:
-    return False
-  return True
+    try:
+        subprocess.run(['ffmpeg'] + list(cmd), check=True)
+    except subprocess.CalledProcessError:
+        return False
+    return True

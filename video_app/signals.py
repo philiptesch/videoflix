@@ -3,7 +3,8 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .models import  Video
 import os
-from .tasks import convert_Video
+from .tasks import save_new_video_path
+
 @receiver(post_save, sender=Video)
 def video_post_save(sender, instance, created, **kwargs):
 
@@ -12,7 +13,7 @@ def video_post_save(sender, instance, created, **kwargs):
         print('New object created', instance.id)
     
 
-        convert_Video(instance.video_file.path, instance.id)
+        save_new_video_path(instance, instance.id)
 
         
         
