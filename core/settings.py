@@ -116,11 +116,34 @@ DATABASES = {
     }
 }
 
+# RQ_QUEUES = {
+#     'default': {
+#         'HOST': os.environ.get("REDIS_HOST", default="redis"),
+#         'PORT': os.environ.get("REDIS_PORT", default=6379),
+#         'DB': os.environ.get("REDIS_DB", default=0),
+#         'DEFAULT_TIMEOUT': 900,
+#         'REDIS_CLIENT_KWARGS': {},
+#     },
+# }
+
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": os.environ.get("REDIS_LOCATION", default="redis://redis:6379/1"),
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient"
+#         },
+#         "KEY_PREFIX": "videoflix"
+#     }
+# }
+
+
+
 RQ_QUEUES = {
     'default': {
-        'HOST': os.environ.get("REDIS_HOST", default="redis"),
-        'PORT': os.environ.get("REDIS_PORT", default=6379),
-        'DB': os.environ.get("REDIS_DB", default=0),
+        'HOST': '127.0.0.1',  # lokal laufender Redis
+        'PORT': 6379,
+        'DB': 0,
         'DEFAULT_TIMEOUT': 900,
         'REDIS_CLIENT_KWARGS': {},
     },
@@ -129,7 +152,7 @@ RQ_QUEUES = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get("REDIS_LOCATION", default="redis://redis:6379/1"),
+        "LOCATION": "redis://127.0.0.1:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },

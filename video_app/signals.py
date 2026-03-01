@@ -4,8 +4,10 @@ from django.dispatch import receiver
 from .models import  Video
 import os
 from .tasks import save_new_video_path
+from django_rq.queues import get_queue
 
-@receiver(post_save, sender=Video)
+
+@receiver(post_save, sender=Video, dispatch_uid="signal=uid")
 def video_post_save(sender, instance, created, **kwargs):
 
     print('Video was saved')
@@ -13,8 +15,9 @@ def video_post_save(sender, instance, created, **kwargs):
         print('New object created', instance.id)
     
 
-        save_new_video_path(instance, instance.id)
-
+       
+        queue = get_queue('default', autocommit=True)
+        queue.enqueue(save_new_video_path, instance, instance.id)
         
         
         

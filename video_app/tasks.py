@@ -12,26 +12,28 @@ def save_new_video_path(instance, id):
     convert_Video(instance, new_path, new_name)
 
 
-def convert_Video(instance, new_path, new_name):
-    target_dir = os.path.join('media', 'video', 'hls')
+def convert_Video(id, new_path, new_name):
+    target_dir = os.path.join('media', 'video', '480p', str(id))
     os.makedirs(target_dir, exist_ok=True)
-    target = os.path.join(target_dir, new_name.replace('.mp4', '_480.mp4'))
+    playlist_path = os.path.join(target_dir, "index.m3u8")
+    segment_path = os.path.join(target_dir, "segment_%03d.ts")
+
     ffmpeg_command = [
         '-i', new_path,
-        '-s', 'hd480',
+        '-vf', 'scale=854:480',      # 480p
         '-c:v', 'libx264',
+        '-preset', 'medium',
         '-crf', '23',
         '-c:a', 'aac',
-        '-strict', '-2',
-        target
+        '-b:a', '128k',
+        '-f', 'hls',
+        '-hls_time', '6',
+        '-hls_playlist_type', 'vod',
+        '-hls_segment_filename', segment_path,
+        playlist_path
     ]
-
     if ffmpeg(*ffmpeg_command):
-        with open(new_path, 'rb') as f : 
-            instance.video_file.save(os.path.basename(new_path), File(f), 
-            save=True )
-        return target
-    
+        return playlist_path
     else:
         return None
     
