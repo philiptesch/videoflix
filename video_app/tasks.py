@@ -20,7 +20,7 @@ def convert_Video(id, new_path, new_name):
 
     ffmpeg_command = [
         '-i', new_path,
-        '-vf', 'scale=854:480',      # 480p
+        '-vf', 'scale=854:480', 
         '-c:v', 'libx264',
         '-preset', 'medium',
         '-crf', '23',
