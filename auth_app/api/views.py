@@ -46,7 +46,7 @@ class RegistrationView(APIView):
         message = render_to_string('account_active_email.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token})
 
         email =EmailMultiAlternatives(
-        subject='My email',
+        subject='Confirm your email',
         body=message,
         from_email='noreply@example.com',
         to=[mail])

@@ -5,14 +5,22 @@
     <title>Account Activation</title>
 </head>
 <body>
-    <h2>Hello {{ user }}!</h2>
-    <p>Thank you for registering. Please click the link below to activate your account:</p>
+        <p style="margin:0 0 16px 0;">
+                Dear <strong>{{ user}}</strong>,
+        </p>
+
+
+                <p style="margin:0 0 24px 0;">
+                Thanks for registering with <strong>Videoflix</strong>.<br>
+                To complete your registration and verify your email address,
+                please click the link below:
+              </p>
     
-    <p>
+    <button>
         <a href="http://{{ domain }}api/activate/{{ uid }}/{{ token }}/">
             Activate Account
         </a>
-    </p>
+    </button>
 
     <p>If the link does not work, please copy and paste it into your browser:</p>
     <p>http://{{ domain }}api/activate/{{ uid }}/{{ token }}/</p>
