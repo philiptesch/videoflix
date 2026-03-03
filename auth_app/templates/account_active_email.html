@@ -5,6 +5,10 @@
     <title>Account Activation</title>
 </head>
 <body>
+
+       <p style="text-align:center; margin:0 0 24px 0;">
+        <img src="cid:logo" alt="Videoflix Logo" width="200" style="display:block; margin:auto;">
+    </p>
         <p style="margin:0 0 16px 0;">
                 Dear <strong>{{ user}}</strong>,
         </p>
@@ -23,7 +27,7 @@
     </button>
 
     <p>If the link does not work, please copy and paste it into your browser:</p>
-    <p>http://{{ domain }}api/activate/{{ uid }}/{{ token }}/</p>
+    <p>http://{{ domain }}api/activate/{{ uid }}/{{ token }}</p>
 
     <br>
     <p>Thank you,<br>Your Team</p>

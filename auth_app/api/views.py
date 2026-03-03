@@ -19,7 +19,7 @@ from rest_framework_simplejwt.views import (
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .helper import  check_token_is_valid
+from .helper import  check_token_is_valid, logo_data
 from django.contrib.auth.models import User
 
 
@@ -54,6 +54,8 @@ class RegistrationView(APIView):
         email.send(fail_silently=False)
         print('nmame')
         print(username)
+
+        email.attach(logo_data())
 
         response = Response({"user":{'id': user.id, 'email':mail  },'token': 'activation_token'}, status=status.HTTP_200_OK)
 
