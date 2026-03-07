@@ -51,11 +51,12 @@ class RegistrationView(APIView):
         from_email='noreply@example.com',
         to=[mail])
         email.attach_alternative(message, "text/html")
+        email.attach(logo_data())
         email.send(fail_silently=False)
         print('nmame')
         print(username)
 
-        email.attach(logo_data())
+        
 
         response = Response({"user":{'id': user.id, 'email':mail  },'token': 'activation_token'}, status=status.HTTP_200_OK)
 
