@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', default='django-insecure-@#x5h3zj!g+8g1v@2^
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
 DEBUG = True
-
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", default="localhost").split(",")
 #CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", default="http://localhost:4200").split(",")
 #CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", default="http://localhost:4200").split(",")

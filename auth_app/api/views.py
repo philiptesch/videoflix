@@ -21,7 +21,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .helper import  check_token_is_valid, logo_data
 from django.contrib.auth.models import User
-
+from django.conf import settings
 
 class RegistrationView(APIView):
 
@@ -43,7 +43,7 @@ class RegistrationView(APIView):
 
         user_display = user.username if user.username else user.email
 
-        message = render_to_string('account_active_email.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token})
+        message = render_to_string('account_active_email.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token, "FRONTEND_URL": settings.FRONTEND_URL,})
 
         email =EmailMultiAlternatives(
         subject='Confirm your email',
@@ -171,7 +171,7 @@ class PasswordResetView(APIView):
                 token = account_activation_token.make_token(user)
                 user_display = user.username if user.username else user.email
 
-                message = render_to_string('reset_password.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token})
+                message = render_to_string('reset_password.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token, "FRONTEND_URL": settings.FRONTEND_URL})
 
                 email =EmailMultiAlternatives(
                 subject='Reset your Password',
