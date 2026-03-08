@@ -174,11 +174,12 @@ class PasswordResetView(APIView):
                 message = render_to_string('reset_password.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token})
 
                 email =EmailMultiAlternatives(
-                subject='My email',
+                subject='Reset your Password',
                 body=message,
                 from_email='noreply@example.com',
                 to=[email])
                 email.attach_alternative(message, "text/html")
+                email.attach(logo_data())
                 email.send(fail_silently=False)
 
 

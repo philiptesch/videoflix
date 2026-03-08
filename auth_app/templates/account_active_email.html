@@ -6,23 +6,23 @@
 </head>
 <body>
 
-       <div style="text-align:center; margin:0 0 24px 0;">
+    <div style="text-align:center; margin:0px 50px 24px 0px;">
 
-        <img src="cid:logo" alt="Videoflix Logo" width="200" style="display:block; margin:auto;">
+        <img src="cid:logo" alt="Videoflix Logo" style="display:block; margin:auto; width: 350px;">
     </div>
         <p style="margin:0 0 16px 0;">
-                Dear <strong>{{ user}}</strong>,
+                Dear <a style="color:#562CFF; text-decoration: none; font-weight:bolder;" >{{ user}}</a>,
         </p>
 
 
                 <p style="margin:0 0 24px 0;">
-                Thanks for registering with <strong>Videoflix</strong>.<br>
+                Thanks for registering with <strong style="color:#562CFF">Videoflix</strong>.<br>
                 To complete your registration and verify your email address,
                 please click the link below:
               </p>
     
-    <button>
-        <a href="http://{{ domain }}api/activate/{{ uid }}/{{ token }}/">
+    <button style="border-radius: 50px;padding: 15px 30px;background-color: #562CFF;border: none;">
+    <a style="text-decoration: none;color: white;font-size: 18px;font-weight: bolder;" href="http://{{ domain }}api/activate/{{ uid }}/{{ token }}/">
             Activate Account
         </a>
     </button>
@@ -31,9 +31,9 @@
     <div>
    <p>If you did noch create an account with us, plase disregard this email.</p>
 
-    <br>
     <p>Best regards, </p>
-
+    <p>Your Videoflix Team</p>
+    
      </div>
 </body>
 </html>
