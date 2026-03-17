@@ -22,16 +22,13 @@ class VideoResolutionView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request, *args, **kwargs):
-
         movie_id = self.kwargs.get('movie_id')
         resolution = self.kwargs.get('resolution')
-
         video_exists = Video.objects.filter(pk=movie_id).exists()
         if not video_exists:
             return Response({"detail": "Video not found"}, status=status.HTTP_404_NOT_FOUND)
 
         path = Path(settings.MEDIA_ROOT)  / 'video' / resolution / str(movie_id) / 'index.m3u8'
-
 
         if not os.path.exists(path):
             return Response({"detail": "Playlist not found"},status=status.HTTP_404_NOT_FOUND)

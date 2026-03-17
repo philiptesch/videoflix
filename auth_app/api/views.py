@@ -119,8 +119,6 @@ class LogoutView(APIView):
         if refresh_token is None: 
             return Response({"detail": "refresh_token not found"}, status=status.HTTP_400_BAD_REQUEST)
         
-    
-
         response = Response({"detail": "Logout successful! All tokens will be deleted. Refresh token is now invalid."}, status=status.HTTP_200_OK)
         response.delete_cookie('access_token')
         response.delete_cookie('refresh_token')
