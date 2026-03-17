@@ -4,6 +4,19 @@ from django.core.files import File
 resolutions = [("480", "480p"), ("720", "720p"), ("1080", "1080p")]
 
 def save_new_video_path(instance, id):
+    """
+    Rename the uploaded video file, generate a thumbnail, 
+    and create HLS streams at multiple resolutions.
+
+    Args:
+        instance (Video): The Video model instance.
+        id (int): The ID of the Video instance.
+
+    Behavior:
+        - Renames the original video file to a standardized format.
+        - Creates a thumbnail from the video.
+        - Converts the video into HLS segments for each target resolution.
+    """
     old_path = instance.video_file.path 
     new_name = f"new_video_name_{id}.mp4"
     old = os.path.dirname(old_path)
@@ -17,6 +30,18 @@ def save_new_video_path(instance, id):
 
 
 def convert_Video(id, new_path, res, height):
+    """
+    Convert a video to HLS format at a given resolution.
+
+    Args:
+        id (int): Video instance ID.
+        new_path (str): Path to the source video.
+        res (str): Resolution folder name (e.g., '720p').
+        height (str): Target video height (e.g., '720').
+
+    Returns:
+        str | None: Path to the generated HLS playlist if successful, else None.
+    """
     target_dir = os.path.join('media', 'video', res, str(id))
     os.makedirs(target_dir, exist_ok=True)
     playlist_path = os.path.join(target_dir, "index.m3u8")
@@ -43,6 +68,16 @@ def convert_Video(id, new_path, res, height):
         return None
     
 def convert_Video_to_thumbnail(new_path,instance):
+    """
+    Generate a thumbnail image for a video at 2 seconds into the video.
+
+    Args:
+        new_path (str): Path to the source video.
+        instance (Video): Video model instance to update with thumbnail.
+
+    Returns:
+        str: Path to the generated thumbnail image.
+    """
 
     target_path = os.path.join('media', 'thumbnails', str(instance.id))
     os.makedirs(target_path, exist_ok=True)
@@ -65,6 +100,15 @@ def convert_Video_to_thumbnail(new_path,instance):
 
 
 def ffmpeg(*cmd):
+    """
+    Helper function to execute an ffmpeg command via subprocess.
+
+    Args:
+        *cmd: Variable list of ffmpeg command arguments.
+
+    Returns:
+        bool: True if ffmpeg ran successfully, False if an error occurred.
+    """
     try:
         subprocess.run(['ffmpeg'] + list(cmd), check=True)
     except subprocess.CalledProcessError:

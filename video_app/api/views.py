@@ -13,12 +13,34 @@ from django.http import HttpResponse
 from django.http import FileResponse, Http404
 
 class ListVideoView(ListAPIView):
+    """
+    Returns a list of all videos in the database.
+
+    Permissions:
+        - Requires authentication (IsAuthenticated)
+
+    Serializer:
+        - VideoListSeralizers
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = VideoListSeralizers
     queryset = Video.objects.all()
 
 
 class VideoResolutionView(APIView):
+    """
+    Returns the HLS playlist (.m3u8) for a given video at a specific resolution.
+
+    URL Parameters:
+        movie_id: ID of the video
+        resolution: Desired resolution folder ('480p', '720p', '1080p')
+
+    Behavior:
+        - Checks if the video exists.
+        - Checks if the playlist file exists for the requested resolution.
+        - Returns the content of index.m3u8 with proper MIME type.
+    """
+    
     permission_classes = [IsAuthenticated]
     
     def get(self, request, *args, **kwargs):
@@ -43,6 +65,21 @@ class VideoResolutionView(APIView):
 
 
 class VideoSegmentView(APIView):
+    """
+    Returns a single HLS video segment (.ts) for a given video and resolution.
+
+    URL Parameters:
+        movie_id: ID of the video
+        resolution: Desired resolution folder ('480p', '720p', '1080p')
+        segment: Segment filename (e.g., '000.ts', '001.ts')
+
+    Behavior:
+        - Checks if the video exists.
+        - Validates that the requested segment ends with '.ts'.
+        - Returns the binary segment file using FileResponse.
+        - Raises 404 if the segment does not exist.
+    """
+
     permission_classes = [IsAuthenticated]
 
 
