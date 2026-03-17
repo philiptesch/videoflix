@@ -18,51 +18,55 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from .helper import  check_token_is_valid, logo_data
+from rest_framework.permissions import  AllowAny
+from .helper import  check_token_is_valid, sendRegistrationMail, sendPasswordResetMail
 from django.contrib.auth.models import User
 from django.conf import settings
 
 class RegistrationView(APIView):
+    """
+    API endpoint for user registration.
+
+    Behavior:
+        - Accepts POST requests with user registration data.
+        - Creates an inactive user and sends an account activation email.
+        - Returns user id, email, and an activation token placeholder.
+    """
+    permission_classes = [AllowAny]
+    authentication_classes = [] 
 
     serializer_class = RegistrationSerializer
 
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
-        print(serializer)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         host = request.get_host()
         user.is_active = False
         user.save()
         mail = serializer.validated_data.get('email')
-        username = serializer.validated_data.get('username')
 
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = account_activation_token.make_token(user)
-
         user_display = user.username if user.username else user.email
 
         message = render_to_string('account_active_email.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token, "FRONTEND_URL": settings.FRONTEND_URL,})
-
-        email =EmailMultiAlternatives(
-        subject='Confirm your email',
-        body=message,
-        from_email='noreply@example.com',
-        to=[mail])
-        email.attach_alternative(message, "text/html")
-        email.attach(logo_data())
-        email.send(fail_silently=False)
-        print('nmame')
-        print(username)
-
         
-
-        response = Response({"user":{'id': user.id, 'email':mail  },'token': 'activation_token'}, status=status.HTTP_200_OK)
-
-        return response
+        if sendRegistrationMail(message, mail): 
+            response = Response({"user":{'id': user.id, 'email':mail  },'token': 'activation_token'}, status=status.HTTP_200_OK)
+            return response
 
 class AccountActivatedView(APIView):
+    """
+    API endpoint to activate a user account via an activation token.
+
+    Behavior:
+        - Accepts GET requests with uidb64 and token from activation link.
+        - Verifies token and sets user.is_active to True.
+        - Returns success message if activation is successful.
+    """
+    permission_classes = [AllowAny]
+    authentication_classes = [] 
 
     def get(self, request, *args, **kwargs):
         User = get_user_model()
@@ -87,8 +91,16 @@ class AccountActivatedView(APIView):
 
 
 class LoginView(TokenObtainPairView):
-        serializer_class = LoginSeralizer
+        """
+        API endpoint for user login with JWT authentication.
 
+        Behavior:
+            - Accepts POST requests with email and password.
+            - Returns access and refresh tokens as cookies and login success info.
+        """
+        permission_classes = [AllowAny]
+        serializer_class = LoginSeralizer
+        authentication_classes = [] 
 
         def post(self, request, *args, **kwargs):
             serializer = self.get_serializer(data=request.data)
@@ -108,13 +120,20 @@ class LoginView(TokenObtainPairView):
             return response
         
 class LogoutView(APIView):
+    """
+    API endpoint to log out a user by invalidating refresh token and deleting cookies.
+
+    Behavior:
+        - Accepts POST requests.
+        - Deletes access_token and refresh_token cookies.
+        - Blacklists the refresh token.
+    """
      
     permission_classes = [AllowAny]
+    authentication_classes = [] 
     def post(self, request, *args, **kwargs):
-        
-        access_token = request.COOKIES.get('access_token') 
+    
         refresh_token = request.COOKIES.get('refresh_token')
-
 
         if refresh_token is None: 
             return Response({"detail": "refresh_token not found"}, status=status.HTTP_400_BAD_REQUEST)
@@ -128,9 +147,17 @@ class LogoutView(APIView):
         return response
 
 class RefreshTokenView(TokenRefreshView):
-     
-     
-     def post(self, request, *args, **kwargs):  
+    """
+    API endpoint to refresh access token using a valid refresh token cookie.
+
+    Behavior:
+        - Accepts POST requests.
+        - Returns new access token in secure, httponly cookie if refresh token is valid.
+     """
+    
+    permission_classes = [AllowAny]
+    authentication_classes = [] 
+    def post(self, request, *args, **kwargs):  
           
         refresh_token = request.COOKIES.get('refresh_token')
 
@@ -153,7 +180,17 @@ class RefreshTokenView(TokenRefreshView):
      
 
 class PasswordResetView(APIView):
+    """
+    API endpoint to initiate password reset via email.
 
+    Behavior:
+        - Accepts POST requests with an email address.
+        - Sends a password reset email if the email exists.
+        - Returns a success message.
+    """
+
+    permission_classes = [AllowAny]
+    authentication_classes = [] 
     serializer_class = PasswordResetSeralizer
 
     def post(self, request):
@@ -171,22 +208,25 @@ class PasswordResetView(APIView):
 
                 message = render_to_string('reset_password.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token, "FRONTEND_URL": settings.FRONTEND_URL})
 
-                email =EmailMultiAlternatives(
-                subject='Reset your Password',
-                body=message,
-                from_email='noreply@example.com',
-                to=[email])
-                email.attach_alternative(message, "text/html")
-                email.attach(logo_data())
-                email.send(fail_silently=False)
-
-
-                return Response({"detail": "An email has been sent to reset your password."}, status=status.HTTP_200_OK)
+                if sendPasswordResetMail(message,email ):
+                    return Response({"detail": "An email has been sent to reset your password."}, status=status.HTTP_200_OK)
+          
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 class ConfirmNewPasswordView(APIView):
-    
+    """
+    API endpoint to confirm a new password after password reset.
+
+    Behavior:
+        - Accepts POST requests with new_password and confirm_password.
+        - Validates UID and token from password reset email.
+        - Sets the new password if token is valid.
+        - Returns success message.
+    """
+
+    permission_classes = [AllowAny]
+    authentication_classes = [] 
     serializer_class = ConfirmResetPasswordSeralizer
 
     def post(self, request, *args, **kwargs):
@@ -195,15 +235,15 @@ class ConfirmNewPasswordView(APIView):
         if serializer.is_valid():
             uid_from_url = self.kwargs['uidb64']
             token = self.kwargs['token']
-            new_password = serializer.validated_data.get('new_password')
+            new_password = serializer.validated_data.get('new_password').strip()
 
             try:
                 uid =  force_str(urlsafe_base64_decode(uid_from_url))
                 user = User.objects.get(pk=uid)
             except (TypeError, ValueError, OverflowError):
-                return Response({"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "invalid UID"}, status=status.HTTP_400_BAD_REQUEST)
             except ObjectDoesNotExist:
-                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
             if user is not None and account_activation_token.check_token(user, token):
                 user.set_password(new_password)

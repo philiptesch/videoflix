@@ -69,7 +69,7 @@ class LoginSeralizer(TokenObtainPairSerializer):
        except User.DoesNotExist:
             raise serializers.ValidationError("email not exist") 
        
-       if not user.check_password(password):
+       if not user.check_password(password.strip()):
             raise serializers.ValidationError("wrong password")
           
 
