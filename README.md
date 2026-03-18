@@ -106,6 +106,76 @@ cd <repository_name>
 docker-compose up --build
 ```
 
+## ▶️ Running the Project (Docker)
+
+### 1️⃣ Prerequisites
+
+- Docker Desktop installed  
+- Docker Desktop running on your machine  
+
+> ⚠️ No local Python virtual environment is required; Docker handles everything.
+
+---
+
+### 2️⃣ Build and Start Docker Containers
+
+Run the following command in the project root:
+
+```bash
+docker-compose up --build
+```
+
+Docker will automatically handle:
+
+The Python environment
+
+Installing all dependencies
+
+Starting the Django application
+
+Running Redis and PostgreSQL containers
+
+3️⃣ Access the Application
+
+Once containers are running, the API will be available at:
+
+```bash
+http://127.0.0.1:8000/
+```
+You can also access the Django Admin panel at:
+
+```bash
+http://127.0.0.1:8000/admin/
+```
+4️⃣ Windows Users: Line Ending Fix (CRLF → LF)
+
+When cloning the project on Windows, Git may automatically convert line endings in shell scripts (backend.entrypoint.sh) to CRLF. This can cause the backend container to fail with:
+
+exec ./backend.entrypoint.sh: no such file or directory
+videoflix_backend exited with code 255
+
+Fix:
+
+Open backend.entrypoint.sh in VS Code
+
+Click on the CRLF indicator in the bottom right corner
+
+Select LF
+
+Save the file (Ctrl + S)
+
+Restart Docker containers:
+```bash
+docker-compose up --build
+```
+
+
+5️⃣ Optional: Running Tests
+
+To run tests inside the Docker container:
+
+docker-compose exec web python manage.py test
+
 Access API at: `http://127.0.0.1:8000/`
 
 **Windows users:** ensure line endings of `backend.entrypoint.sh` are LF (not CRLF).
