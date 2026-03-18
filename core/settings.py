@@ -30,14 +30,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', default='django-insecure-@#x5h3zj!g+8g1v@2^
 DEBUG = True
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", default="localhost").split(",")
-#CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", default="http://localhost:4200").split(",")
-#CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", default="http://localhost:4200").split(",")
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", default="http://localhost:5500").split(",")
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", default="http://localhost:5500").split(",")
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-]
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
@@ -95,75 +91,42 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-#DATABASES = {
- #   "default": {
-  #      "ENGINE": "django.db.backends.postgresql",
-  #      "NAME": os.environ.get("DB_NAME", default="videoflix_db"),
-   #     "USER": os.environ.get("DB_USER", default="videoflix_user"),
-   #     "PASSWORD": os.environ.get("DB_PASSWORD", default="supersecretpassword"),
-    #    "HOST": 'localhost',
-    #    "PORT": os.environ.get("DB_PORT", default=5432)
-   # }
-#}
-
-
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "videoflix_db",
-        "USER": "videoflix_user",
-        "PASSWORD": "supersecretpassword",
-        "HOST": "localhost",
-        "PORT": "5432",
-           "OPTIONS": {
-            "client_encoding": "UTF8",
-        },
-    }
+   "default": {
+      "ENGINE": "django.db.backends.postgresql",
+       "NAME": os.environ.get("DB_NAME", default="videoflix_db"),
+     "USER": os.environ.get("DB_USER", default="videoflix_user"),
+     "PASSWORD": os.environ.get("DB_PASSWORD", default="supersecretpassword"),
+        "HOST": os.environ.get("DB_HOST", default="db"),
+    "PORT": os.environ.get("DB_PORT", default=5432)
+ }
 }
 
-# RQ_QUEUES = {
-#     'default': {
-#         'HOST': os.environ.get("REDIS_HOST", default="redis"),
-#         'PORT': os.environ.get("REDIS_PORT", default=6379),
-#         'DB': os.environ.get("REDIS_DB", default=0),
-#         'DEFAULT_TIMEOUT': 900,
-#         'REDIS_CLIENT_KWARGS': {},
-#     },
-# }
-
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": os.environ.get("REDIS_LOCATION", default="redis://redis:6379/1"),
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient"
-#         },
-#         "KEY_PREFIX": "videoflix"
-#     }
-# }
 
 
 
 RQ_QUEUES = {
     'default': {
-        'HOST': '127.0.0.1',  # lokal laufender Redis
-        'PORT': 6379,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 900,
+        'HOST': os.environ.get("REDIS_HOST", default="redis"),
+        'PORT': os.environ.get("REDIS_PORT", default=6379),
+        'DB': os.environ.get("REDIS_DB", default=0),
+         'DEFAULT_TIMEOUT': 900,
         'REDIS_CLIENT_KWARGS': {},
-    },
-}
+     }, }
 
 CACHES = {
-    "default": {
+     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient"
-        },
+        "LOCATION": os.environ.get("REDIS_LOCATION", default="redis://redis:6379/1"),
+        "OPTIONS": {             "CLIENT_CLASS": "django_redis.client.DefaultClient"
+         },
         "KEY_PREFIX": "videoflix"
     }
-}
+ }
+
+
+
+
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 

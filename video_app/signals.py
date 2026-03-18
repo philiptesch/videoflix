@@ -31,10 +31,8 @@ def video_post_save(sender, instance, created, **kwargs):
     if  created:
         print('New object created', instance.id)
     
-
-        save_new_video_path(instance, instance.id)   
-      #  queue = get_queue('default', autocommit=True)
-      #  queue.enqueue(save_new_video_path, instance, instance.id)
+        queue = get_queue('default', autocommit=True)
+        queue.enqueue(save_new_video_path, instance, instance.id)
         
         
         

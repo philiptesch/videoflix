@@ -63,7 +63,9 @@ def convert_Video(id, new_path, res, height):
         playlist_path
     ]
     if ffmpeg(*ffmpeg_command):
+        print('erfolg')
         return playlist_path
+
     else:
         return None
     
