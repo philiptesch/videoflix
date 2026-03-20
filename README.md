@@ -26,31 +26,85 @@ Authentication is securely handled using **JWT (JSON Web Tokens)**, and video de
 * **Database:** PostgreSQL / SQLite
 * **Web Server:** Gunicorn, Whitenoise
 
-### Required Libraries
+---
 
-asgiref==3.11.1
-click==8.3.1
-colorama==0.4.6
-croniter==6.0.0
-Django==6.0.2
-django-cors-headers==4.9.0
-django-redis==6.0.0
-django-rq==3.2.2
-djangorestframework==3.16.1
-djangorestframework_simplejwt==5.5.1
-gunicorn==25.0.1
-packaging==26.0
-psycopg2-binary==2.9.11
-PyJWT==2.11.0
-python-dateutil==2.9.0.post0
-python-dotenv==1.2.1
-pytz==2025.2
-redis==7.1.0
-rq==2.6.1
-six==1.17.0
-sqlparse==0.5.5
-tzdata==2025.3
-whitenoise==6.11.0
+## 🎥 FFmpeg Requirement
+
+FFmpeg is required for video transcoding and HLS segment generation.
+
+### Install FFmpeg (Linux/Ubuntu)
+
+```bash
+sudo apt update
+sudo apt install ffmpeg
+```
+
+### Usage Example
+
+```bash
+ffmpeg -i input.mp4 -hls_time 10 -hls_playlist_type vod output.m3u8
+```
+
+### Docker
+
+Ensure FFmpeg is installed in your backend container:
+
+```Dockerfile
+RUN apt-get update && apt-get install -y ffmpeg
+```
+
+> In this project FFmpeg is already installed via Alpine (`apk add ffmpeg`).
+
+### Environment Variable
+
+If needed, define the FFmpeg path in `.env`:
+
+```
+FFMPEG_PATH=/usr/bin/ffmpeg
+```
+
+---
+
+## 📦 Required Libraries (Overview)
+
+### Core
+
+* **Django** – Main backend framework
+* **djangorestframework** – REST API framework
+
+### Authentication
+
+* **djangorestframework_simplejwt** – JWT authentication
+* **PyJWT** – Token handling
+
+### Background & Caching
+
+* **redis** – In-memory datastore
+* **django-redis** – Redis integration
+* **rq / django-rq** – Background jobs
+
+### Database
+
+* **psycopg2-binary** – PostgreSQL driver
+
+### Utilities
+
+* **python-dotenv** – Environment variables
+* **python-dateutil, pytz, tzdata** – Date & timezone handling
+* **sqlparse** – SQL formatting
+* **packaging** – Version handling
+
+### Server
+
+* **gunicorn** – WSGI server
+* **whitenoise** – Static file serving
+
+### Misc
+
+* **asgiref** – ASGI support
+* **click, colorama** – CLI tools
+* **croniter** – Cron scheduling
+* **six** – Compatibility layer
 
 ---
 
@@ -61,7 +115,7 @@ Videoflix uses **cookie-based JWT authentication**:
 * **Access Token** → HttpOnly cookie for authorized API requests
 * **Refresh Token** → HttpOnly cookie for renewing expired access tokens
 
-Example request (browser automatically includes cookies):
+Example request:
 
 ```http
 GET /api/protected-endpoint HTTP/1.1
@@ -76,9 +130,8 @@ Renew access token via `/api/token/refresh/`.
 ## 🎥 Video Streaming
 
 * Videos delivered via **HLS**
-* Client requests `.m3u8` playlist for selected video and resolution
-* Playlist contains references to multiple video segments
-* Video segments streamed sequentially
+* Client requests `.m3u8` playlist
+* Playlist references multiple segments
 * Adaptive bitrate ensures smooth playback
 
 ### Supported Resolutions
@@ -89,192 +142,110 @@ Renew access token via `/api/token/refresh/`.
 
 ## ⚙️ Installation & Setup (Docker)
 
-Create a `.env` file in the project root directory (or copy it from `.env.example` if provided):
+Create a `.env` file (copy values from `.env.template` and adjust them):
 
 ```
 ENV=development
 DEBUG=True
+
+# Email Configuration (⚠️ replace with real credentials)
+EMAIL_HOST=smtp.example.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your_email_user
+EMAIL_HOST_PASSWORD=your_email_user_password
+EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False
+DEFAULT_FROM_EMAIL=your_email@example.com
 ```
 
-> ⚠️ Note: This project is built using Docker, so the `.env` file is required for the Docker build process.
+> ⚠️ Important: Replace all email values with real SMTP credentials (e.g. Gmail, Outlook, or your provider). Otherwise features like account activation and password reset will not work.
 
-Clone the repository and start Docker containers:
+Start containers:
 
 ```bash
-git clone <repository_url>
-cd <repository_name>
 docker-compose up --build
 ```
-
-## ▶️ Running the Project (Docker)
-
-### 1️⃣ Prerequisites
-
-- Docker Desktop installed  
-- Docker Desktop running on your machine  
-
-> ⚠️ No local Python virtual environment is required; Docker handles everything.
 
 ---
 
-### 2️⃣ Build and Start Docker Containers
+## ▶️ Running the Project
 
-Run the following command in the project root:
+### Prerequisites
 
-```bash
-docker-compose up --build
+* Docker Desktop installed
+* Docker running
+
+### Access
+
 ```
-
-Docker will automatically handle:
-
-The Python environment
-
-Installing all dependencies
-
-Starting the Django application
-
-Running Redis and PostgreSQL containers
-
-3️⃣ Access the Application
-
-Once containers are running, the API will be available at:
-
-```bash
 http://127.0.0.1:8000/
-```
-You can also access the Django Admin panel at:
-
-```bash
 http://127.0.0.1:8000/admin/
 ```
-4️⃣ Windows Users: Line Ending Fix (CRLF → LF)
-
-When cloning the project on Windows, Git may automatically convert line endings in shell scripts (backend.entrypoint.sh) to CRLF. This can cause the backend container to fail with:
-
-exec ./backend.entrypoint.sh: no such file or directory
-videoflix_backend exited with code 255
-
-Fix:
-
-Open backend.entrypoint.sh in VS Code
-
-Click on the CRLF indicator in the bottom right corner
-
-Select LF
-
-Save the file (Ctrl + S)
-
-Restart Docker containers:
-```bash
-docker-compose up --build
-```
-
-
-5️⃣ Optional: Running Tests
-
-To run tests inside the Docker container:
-
-docker-compose exec web python manage.py test
-
-Access API at: `http://127.0.0.1:8000/`
-
-**Windows users:** ensure line endings of `backend.entrypoint.sh` are LF (not CRLF).
 
 ---
 
 ## 🧪 Testing
 
-Run tests:
-
 ```bash
-python manage.py test
+docker-compose exec web python manage.py test
 ```
 
 ---
 
 ## 📄 API Endpoints
 
-### User Authentication
+All endpoints are under `/api/`. Authentication is handled via JWT cookies or headers.
 
-**POST /api/register/**
-Registers a new user.
+### 🔐 Authentication
 
-```json
-{
-  "email": "user@example.com",
-  "password": "securepassword",
-  "confirmed_password": "securepassword"
-}
+| Method | Endpoint                                | Description         |
+| ------ | --------------------------------------- | ------------------- |
+| POST   | /api/register/                          | Register user       |
+| GET    | /api/activate/<uidb64>/<token>/         | Activate account    |
+| POST   | /api/login/                             | Login (JWT cookies) |
+| POST   | /api/logout/                            | Logout              |
+| POST   | /api/token/refresh/                     | Refresh token       |
+| POST   | /api/password_reset/                    | Send reset email    |
+| POST   | /api/password_confirm/<uidb64>/<token>/ | Confirm reset       |
+
+### 🎥 Videos
+
+| Method | Endpoint                                | Description  | Auth     |
+| ------ | --------------------------------------- | ------------ | -------- |
+| GET    | /api/video/                             | List videos  | Optional |
+| GET    | /api/video/<id>/<resolution>/index.m3u8 | HLS manifest | Optional |
+| GET    | /api/video/<id>/<resolution>/<segment>  | HLS segment  | Optional |
+
+### ⚙️ Other
+
+| Endpoint    | Description        |
+| ----------- | ------------------ |
+| /admin/     | Django admin panel |
+| /django-rq/ | RQ dashboard       |
+
+---
+
+## 📁 Project Structure
+
 ```
-
-* Status: 201 Created
-* Sends activation email
-
-**GET /api/activate/<uidb64>/<token>/**
-Activate user account.
-
-**POST /api/login/**
-
-```json
-{
-  "email": "user@example.com",
-  "password": "securepassword"
-}
+videoflix/
+├── auth_app/        # Authentication logic
+├── video_app/   # Video handling & HLS streaming
+├── core/            # Settings & core config
+├── docker-compose.yml
+├── requirements.txt
+└── manage.py
 ```
-
-* Status: 200 OK
-* Sets HttpOnly cookies: access_token & refresh_token
-
-**POST /api/logout/**
-Logs out user, invalidates refresh token.
-
-* Status: 200 OK
-* Deletes cookies
-
-**POST /api/token/refresh/**
-
-* Provides new access token using refresh token cookie
-* Status: 200 OK
-
-**POST /api/password_reset/**
-
-```json
-{
-  "email": "user@example.com"
-}
-```
-
-* Sends password reset email
-
-**POST /api/password_confirm/<uidb64>/<token>/**
-
-* Confirms and resets password
-
-### Video Streaming
-
-**GET /api/video/**
-
-* Returns list of all available videos
-* Status: 200 OK
-
-**GET /api/video/[int:movie_id](int:movie_id)/[str:resolution](str:resolution)/index.m3u8**
-
-* Returns HLS master playlist for selected video and resolution
-* Status: 200 OK
-
-**GET /api/video/[int:movie_id](int:movie_id)/[str:resolution](str:resolution)/[str:segment](str:segment)/**
-
-* Returns specific HLS video segment
-* Status: 200 OK
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Open an issue or submit a pull request.
+Contributions are welcome!
 
 ---
 
 ## 📄 License
 
 MIT License © philiptesch
+
