@@ -55,7 +55,10 @@ class RegistrationView(APIView):
         if sendRegistrationMail(message, mail): 
             response = Response({"user":{'id': user.id, 'email':mail  },'token': 'activation_token'}, status=status.HTTP_200_OK)
             return response
-
+        else: 
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        
 class AccountActivatedView(APIView):
     """
     API endpoint to activate a user account via an activation token.
