@@ -51,8 +51,9 @@ class RegistrationView(APIView):
         user_display = user.username if user.username else user.email
 
         message = render_to_string('account_active_email.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token, "FRONTEND_URL": settings.FRONTEND_URL,})
-        
-        if sendRegistrationMail(message, mail): 
+        content = render_to_string('account_active_email.txt', {'user': user_display,'domain': host, 'uid': uid, 'token': token, "FRONTEND_URL": settings.FRONTEND_URL,})
+
+        if sendRegistrationMail(message, content, mail): 
             response = Response({"user":{'id': user.id, 'email':mail  },'token': 'activation_token'}, status=status.HTTP_200_OK)
             return response
         else: 
@@ -210,8 +211,9 @@ class PasswordResetView(APIView):
                 user_display = user.username if user.username else user.email
 
                 message = render_to_string('reset_password.html', {'user': user_display,'domain': host, 'uid': uid, 'token': token, "FRONTEND_URL": settings.FRONTEND_URL})
+                content = render_to_string('reset_password.txt', {'user': user_display,'domain': host, 'uid': uid, 'token': token, "FRONTEND_URL": settings.FRONTEND_URL})
 
-                if sendPasswordResetMail(message,email ):
+                if sendPasswordResetMail(message,content, email ):
                     return Response({"detail": "An email has been sent to reset your password."}, status=status.HTTP_200_OK)
           
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

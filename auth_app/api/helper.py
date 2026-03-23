@@ -4,7 +4,7 @@ from email.mime.image import MIMEImage
 from django.contrib.staticfiles import finders
 from functools import lru_cache
 from django.core.mail import EmailMultiAlternatives
-
+from django.conf import settings
 
 def check_token_is_valid(token):
     """
@@ -49,7 +49,7 @@ def logo_data():
 
 
 
-def sendRegistrationMail(message, mail):
+def sendRegistrationMail(message,content, mail):
     """
     Sends a registration confirmation email to a user.
 
@@ -70,10 +70,10 @@ def sendRegistrationMail(message, mail):
     email =EmailMultiAlternatives(
         subject='Confirm your email',
         body=message,
-        from_email='noreply@example.com',
+        from_email=settings.DEFAULT_FROM_EMAIL,
         to=[mail])
 
-    email.attach_alternative(message, "text/html")
+    email.attach_alternative(content, "text/html")
     email.attach(logo_data())
 
     try:  
@@ -84,7 +84,7 @@ def sendRegistrationMail(message, mail):
 
 
 
-def sendPasswordResetMail(message, mail):
+def sendPasswordResetMail(message,content, mail):
         """
         Sends a password reset email to a user.
 
@@ -105,10 +105,10 @@ def sendPasswordResetMail(message, mail):
         email =EmailMultiAlternatives(
                 subject='Reset your Password',
                 body=message,
-                from_email='noreply@example.com',
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[mail])
         
-        email.attach_alternative(message, "text/html")
+        email.attach_alternative(content, "text/html")
         email.attach(logo_data())
 
         try:  
