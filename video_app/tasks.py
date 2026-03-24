@@ -49,7 +49,7 @@ def convert_Video(id, new_path, res, height):
 
     ffmpeg_command = [
         '-i', new_path,
-        '-vf', f'scale=854:{height}', 
+        '-vf', f'scale=-2:{height}', 
         '-c:v', 'libx264',
         '-preset', 'medium',
         '-crf', '23',
