@@ -1,6 +1,7 @@
 import subprocess
 import os
 from django.core.files import File
+
 resolutions = [("480", "480p"), ("720", "720p"), ("1080", "1080p")]
 
 def save_new_video_path(instance, id):
@@ -22,11 +23,38 @@ def save_new_video_path(instance, id):
     old = os.path.dirname(old_path)
     new_path = os.path.join(old, new_name)
     os.rename(old_path, new_path)
+    get_length(new_path)
     convert_Video_to_thumbnail(new_path,instance)
 
     for  height, res in resolutions:
         
         convert_Video(id, new_path, res, height)
+
+
+
+def get_length(filename):
+    """
+    Gibt die Dauer einer Videodatei in Sekunden zurück.
+    """
+    result = subprocess.run(
+        [
+            "ffprobe",
+            "-v", "error",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            filename
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+    
+    # Bytes → String → Whitespace entfernen → Float
+    duration = float(result.stdout.decode('utf-8').strip())
+    print("Video duration (seconds):", duration)
+    print('sehr gut')
+    return duration
+    
+
 
 
 def convert_Video(id, new_path, res, height):
