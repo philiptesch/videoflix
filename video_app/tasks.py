@@ -1,6 +1,7 @@
 import subprocess
 import os
 from django.core.files import File
+from pymediainfo import MediaInfo
 
 resolutions = [("480", "480p"), ("720", "720p"), ("1080", "1080p")]
 
@@ -16,6 +17,8 @@ def save_new_video_path(instance, id):
     Behavior:
         - Renames the original video file to a standardized format.
         - Creates a thumbnail from the video.
+        - Avoids overwriting existing thumbnails
+        - Calculate the video's half-duration (used for thumbnail timestamp)
         - Converts the video into HLS segments for each target resolution.
     """
     old_path = instance.video_file.path 
@@ -23,8 +26,9 @@ def save_new_video_path(instance, id):
     old = os.path.dirname(old_path)
     new_path = os.path.join(old, new_name)
     os.rename(old_path, new_path)
-    get_length(new_path)
-    convert_Video_to_thumbnail(new_path,instance)
+    video_length = get_length(new_path)
+    if not instance.thumbnail_url: 
+        convert_Video_to_thumbnail(new_path,instance, video_length)
 
     for  height, res in resolutions:
         
@@ -34,25 +38,29 @@ def save_new_video_path(instance, id):
 
 def get_length(filename):
     """
-    Gibt die Dauer einer Videodatei in Sekunden zurück.
+    Reads the video file's metadata to calculate half the duration,
+    then converts it to hh:mm:ss format for FFmpeg.
+
+    Args:
+        filename (str): Path to the video file
+
+    Returns:
+        str: Half of the video's duration in hh:mm:ss format
     """
-    result = subprocess.run(
-        [
-            "ffprobe",
-            "-v", "error",
-            "-show_entries", "format=duration",
-            "-of", "default=noprint_wrappers=1:nokey=1",
-            filename
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT
-    )
+    media_info = MediaInfo.parse(filename)
     
-    # Bytes → String → Whitespace entfernen → Float
-    duration = float(result.stdout.decode('utf-8').strip())
-    print("Video duration (seconds):", duration)
-    print('sehr gut')
-    return duration
+    for track in media_info.tracks:
+        if track.track_type == "Video":
+            duration = track.duration
+            half_duration_ms = duration / 2
+            total_seconds = int(half_duration_ms / 1000)
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60 
+            print("Duration:", duration, "Duration:",  seconds, "Duration:", total_seconds, "Duration:", hours, "Duration:", minutes  )
+            return  f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+    return None
     
 
 
@@ -97,7 +105,7 @@ def convert_Video(id, new_path, res, height):
     else:
         return None
     
-def convert_Video_to_thumbnail(new_path,instance):
+def convert_Video_to_thumbnail(new_path,instance, video_length):
     """
     Generate a thumbnail image for a video at 2 seconds into the video.
 
@@ -118,7 +126,7 @@ def convert_Video_to_thumbnail(new_path,instance):
     'ffmpeg',
     '-i',
      new_path,
-     '-ss', '00:00:02', 
+     '-ss', video_length, 
      '-vframes', '1',
      thumbnail_path]
     
