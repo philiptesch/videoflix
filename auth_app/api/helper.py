@@ -77,7 +77,6 @@ def sendRegistrationMail(message,content, mail):
     email.attach(logo_data())
 
     try:  
-        email.send(fail_silently=False)
         return True
     except: return False
 
