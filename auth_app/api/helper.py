@@ -76,7 +76,8 @@ def sendRegistrationMail(message,content, mail):
     email.attach_alternative(content, "text/html")
     email.attach(logo_data())
 
-    try:  
+    try:
+        email.send()
         return True
     except: return False
 
@@ -103,14 +104,14 @@ def sendPasswordResetMail(message,content, mail):
      
         email =EmailMultiAlternatives(
                 subject='Reset your Password',
-                body=message,
+                body=content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[mail])
         
-        email.attach_alternative(content, "text/html")
+        email.attach_alternative(message, "text/html")
         email.attach(logo_data())
 
         try:  
-             email.send(fail_silently=False)
-             return True
+            email.send()
+            return True
         except: return False
