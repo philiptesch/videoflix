@@ -1,6 +1,5 @@
 import subprocess
 import os
-from django.core.files import File
 from pymediainfo import MediaInfo
 
 resolutions = [("480", "480p"), ("720", "720p"), ("1080", "1080p")]
@@ -85,7 +84,7 @@ def convert_Video(id, new_path, res, height):
 
     ffmpeg_command = [
         '-i', new_path,
-        '-vf', f'scale=-2:{height}', 
+        '-vf', f'scale=w=-2:h={height}:force_original_aspect_ratio=decrease',
         '-c:v', 'libx264',
         '-preset', 'medium',
         '-crf', '23',
@@ -98,6 +97,7 @@ def convert_Video(id, new_path, res, height):
         '-hls_segment_filename', segment_path,
         playlist_path
     ]
+
     if ffmpeg(*ffmpeg_command):
         print('erfolg')
         return playlist_path
@@ -126,7 +126,7 @@ def convert_Video_to_thumbnail(new_path,instance, video_length):
     'ffmpeg',
     '-i',
      new_path,
-     '-ss', video_length, 
+     '-ss', video_length,
      '-vframes', '1',
      thumbnail_path]
     
