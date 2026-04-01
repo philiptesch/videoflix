@@ -83,8 +83,10 @@ def convert_Video(id, new_path, res, height):
     segment_path = os.path.join(target_dir, "segment_%03d.ts")
 
     ffmpeg_command = [
+        "ffmpeg",
+        "-y",
         '-i', new_path,
-        '-vf', f'scale=w=-2:h={height}:force_original_aspect_ratio=decrease',
+        "-vf", f"scale=-2:{height}",
         '-c:v', 'libx264',
         '-preset', 'medium',
         '-crf', '23',
