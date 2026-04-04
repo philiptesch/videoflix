@@ -25,9 +25,9 @@ def save_new_video_path(instance, id):
     old = os.path.dirname(old_path)
     new_path = os.path.join(old, new_name)
     os.rename(old_path, new_path)
-    video_length = get_length(new_path)
-    if not instance.thumbnail_url: 
-        convert_Video_to_thumbnail(new_path,instance, video_length)
+ #   video_length = get_length(new_path)
+ #   if not instance.thumbnail_url: 
+ #       convert_Video_to_thumbnail(new_path,instance, video_length)
 
     for  height, res in resolutions:
         
@@ -35,7 +35,7 @@ def save_new_video_path(instance, id):
 
 
 
-def get_length(filename):
+#def get_length(filename):
     """
     Reads the video file's metadata to calculate half the duration,
     then converts it to hh:mm:ss format for FFmpeg.
@@ -46,20 +46,20 @@ def get_length(filename):
     Returns:
         str: Half of the video's duration in hh:mm:ss format
     """
-    media_info = MediaInfo.parse(filename)
+ #   media_info = MediaInfo.parse(filename)
     
-    for track in media_info.tracks:
-        if track.track_type == "Video":
-            duration = track.duration
-            half_duration_ms = duration / 2
-            total_seconds = int(half_duration_ms / 1000)
-            hours = total_seconds // 3600
-            minutes = (total_seconds % 3600) // 60
-            seconds = total_seconds % 60 
-            print("Duration:", duration, "Duration:",  seconds, "Duration:", total_seconds, "Duration:", hours, "Duration:", minutes  )
-            return  f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+  #  for track in media_info.tracks:
+     #   if track.track_type == "Video":
+      #      duration = track.duration
+        #    half_duration_ms = duration / 2
+       #     total_seconds = int(half_duration_ms / 1000)
+        #    hours = total_seconds // 3600
+        #    minutes = (total_seconds % 3600) // 60
+         #   seconds = total_seconds % 60 
+         #   print("Duration:", duration, "Duration:",  seconds, "Duration:", total_seconds, "Duration:", hours, "Duration:", minutes  )
+         #   return  f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
-    return None
+   # return None
     
 
 
@@ -83,7 +83,6 @@ def convert_Video(id, new_path, res, height):
     segment_path = os.path.join(target_dir, "segment_%03d.ts")
 
     ffmpeg_command = [
-        "ffmpeg",
         "-y",
         '-i', new_path,
         "-vf", f"scale=-2:{height}",
