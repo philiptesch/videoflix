@@ -71,6 +71,7 @@ FFMPEG_PATH=/usr/bin/ffmpeg
 
 * **Django** – Main backend framework
 * **djangorestframework** – REST API framework
+* pymediainfo==7.0.1 – Video metadata parsing
 
 ### Authentication
 
