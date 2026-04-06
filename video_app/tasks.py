@@ -25,9 +25,10 @@ def save_new_video_path(instance, id):
     old = os.path.dirname(old_path)
     new_path = os.path.join(old, new_name)
     os.rename(old_path, new_path)
- #   video_length = get_length(new_path)
- #   if not instance.thumbnail_url: 
- #       convert_Video_to_thumbnail(new_path,instance, video_length)
+    
+    video_length = get_length(new_path)
+    if not instance.thumbnail_url: 
+      convert_Video_to_thumbnail(new_path,instance, video_length)
 
     for  height, res in resolutions:
         
@@ -35,7 +36,7 @@ def save_new_video_path(instance, id):
 
 
 
-#def get_length(filename):
+def get_length(filename):
     """
     Reads the video file's metadata to calculate half the duration,
     then converts it to hh:mm:ss format for FFmpeg.
@@ -46,20 +47,18 @@ def save_new_video_path(instance, id):
     Returns:
         str: Half of the video's duration in hh:mm:ss format
     """
- #   media_info = MediaInfo.parse(filename)
+    media_info = MediaInfo.parse(filename)
     
-  #  for track in media_info.tracks:
-     #   if track.track_type == "Video":
-      #      duration = track.duration
-        #    half_duration_ms = duration / 2
-       #     total_seconds = int(half_duration_ms / 1000)
-        #    hours = total_seconds // 3600
-        #    minutes = (total_seconds % 3600) // 60
-         #   seconds = total_seconds % 60 
-         #   print("Duration:", duration, "Duration:",  seconds, "Duration:", total_seconds, "Duration:", hours, "Duration:", minutes  )
-         #   return  f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-
-   # return None
+    for track in media_info.tracks:
+        if track.track_type == "Video":
+            duration = track.duration
+            half_duration_ms = duration / 2
+            total_seconds = int(half_duration_ms / 1000)
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60 
+            return  f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+    return None
     
 
 
@@ -76,7 +75,9 @@ def convert_Video(id, new_path, res, height):
 
     Returns:
         str | None: Path to the generated HLS playlist if successful, else None.
+        
     """
+    
     target_dir = os.path.join('media', 'video', res, str(id))
     os.makedirs(target_dir, exist_ok=True)
     playlist_path = os.path.join(target_dir, "index.m3u8")
@@ -87,12 +88,12 @@ def convert_Video(id, new_path, res, height):
         '-i', new_path,
         "-vf", f"scale=-2:{height}",
         '-c:v', 'libx264',
-        '-preset', 'medium',
-        '-crf', '23',
+        '-preset', 'superfast',
+        '-crf', '28',
         '-c:a', 'aac',
         '-b:a', '128k',
         '-f', 'hls',
-        '-hls_time', '6',
+        '-hls_time', '4',
         '-hls_playlist_type', 'vod',
        '-hls_base_url', f"/media/video/{res}/{id}/",
         '-hls_segment_filename', segment_path,
