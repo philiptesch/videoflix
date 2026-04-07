@@ -55,6 +55,7 @@ class RegistrationView(APIView):
 
         if sendRegistrationMail(message, content, mail): 
             response = Response({"user":{'id': user.id, 'email':mail  },'token': 'activation_token'}, status=status.HTTP_200_OK)
+            print('email gesendet')
             return response
         else: 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
