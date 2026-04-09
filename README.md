@@ -146,8 +146,7 @@ Renew access token via `/api/token/refresh/`.
 Create a `.env` file (copy values from `.env.template` and adjust them):
 
 ```
-ENV=development
-DEBUG=True
+
 
 # Email Configuration (⚠️ replace with real credentials)
 EMAIL_HOST=smtp.example.com
